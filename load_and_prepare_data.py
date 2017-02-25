@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+import argparse
+
 import matplotlib.pyplot as plt
 
 from sklearn import preprocessing
@@ -115,3 +117,15 @@ X_train, y_train, X_test, y_test = make_split(split, X, y)
 # Reshape our data frames so we can use them in machine learning algorithms.
 X_train_reshape  = X_train.as_matrix(columns=None)
 y_train_reshape  = y_train.as_matrix(columns=None).reshape(-1,)
+
+# Reshape test data
+X_test_reshape  = X_test.as_matrix(columns=None)
+y_test_reshape  = y_test.as_matrix(columns=None).reshape(-1,)
+
+# Save dataset to disk
+training_set = {'X': X_train_reshape, 'y': y_train_reshape}
+test_set     = {'X': X_test_reshape,  'y': y_test_reshape}
+
+print("Saving training and test sets...")
+np.save("training_set", training_set)
+np.save("test_set", test_set)

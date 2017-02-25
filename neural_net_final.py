@@ -1,32 +1,20 @@
 # NOTE http://scikit-learn.org/stable/modules/cross_validation.html
 
 from load_and_prepare_data import *
+import numpy as np
 
 
-# Save the best classifier
+# Load our prepared test data
+dataset = np.load("test_set.npy")
+
+X_test_reshape = dataset[()]["X"]
+y_test_reshape = dataset[()]["y"]
+
+
+# Load the classifier
 from sklearn.externals import joblib
+net_final = joblib.load('net_model.pkl')
 
-net_final = joblib.load('neural_net_iris.pkl')
-print(net_final)
-
-iris = datasets.load_iris()
-iris_df = pd.DataFrame({
-    "sepal_length": iris['data'][:, 0],
-    "sepal_width":  iris["data"][:,1],
-    "petal_length": iris["data"][:,2],
-    "petal_width":  iris["data"][:,3],
-    "species":      iris["target"]})
-
-X = iris_df[["petal_length", "petal_width"]]
-y = iris_df[["species"]]
-
-
-split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
-
-_, _, X_test, y_test = make_split(split, X, y)
-
-X_test_reshape  = X_test.as_matrix(columns=None)
-y_test_reshape  = y_test.as_matrix(columns=None).reshape(-1,)
 
 
 predictions = net_final.predict(X_test_reshape)

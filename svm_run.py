@@ -1,6 +1,6 @@
 # NOTE http://scikit-learn.org/stable/modules/cross_validation.html
 
-from load_and_prepare_data import *
+import numpy as np
 
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import confusion_matrix
@@ -12,6 +12,12 @@ from sklearn.model_selection import cross_val_predict
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import cross_val_predict
+
+# Load our prepared training data
+dataset = np.load("training_set.npy")
+
+X_train_reshape = dataset[()]["X"]
+y_train_reshape = dataset[()]["y"]
 
 ### STEP 6.B ###
 #
@@ -132,4 +138,4 @@ print("\n")
 
 # Save the best classifier
 from sklearn.externals import joblib
-joblib.dump(svm_clf, 'svm_iris.pkl')
+joblib.dump(svm_clf, 'svm_model.pkl')

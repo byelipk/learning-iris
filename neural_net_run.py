@@ -1,4 +1,4 @@
-from load_and_prepare_data import *
+import numpy as np
 
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import confusion_matrix
@@ -11,10 +11,16 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import cross_val_predict
 
+# Load our prepared training data
+dataset = np.load("training_set.npy")
 
-### STEP 6.A ###
+X_train_reshape = dataset[()]["X"]
+y_train_reshape = dataset[()]["y"]
+
+
+### STEP 6.C ###
 #
-# Evaluate softmax regression model.
+# Evaluate neural network model.
 #
 #   - Measure accuracy
 #   - Measure confusion matrix
@@ -25,51 +31,63 @@ from sklearn.model_selection import cross_val_predict
 #
 #   NOTE http://scikit-learn.org/stable/modules/cross_validation.html
 #
-from sklearn.linear_model    import LogisticRegression
+from sklearn.neural_network import MLPClassifier
 
 
-#################################
-##### GRID SEARCH (Softmax) #####
-#################################
+#########################################
+##### GRID SEARCH (Neural Networks) #####
+#########################################
 #
 # NOTE http://scikit-learn.org/stable/modules/model_evaluation.html
 
 print("Running Grid Search...\n")
 
 # STEP 1
-# Build the parameter grid. We want to run softmax regression with 11
-# different values for the regulation parameter 'C'.
+# Build the parameter grid.
+import itertools
+hidden_layer_sizes = []
+nurons = np.linspace(1, 7, 7, dtype=np.int)
+layers = np.linspace(1, 3, 3, dtype=np.int)
+
+for s in itertools.product(nurons, layers):
+    hidden_layer_sizes.append((int(s[0]), int(s[1])))
+
+# http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html
 param_grid = [
     {
-        'multi_class': ['multinomial'],
+        'activation': ['logistic', 'relu', 'tanh'],
+        'hidden_layer_sizes': hidden_layer_sizes,
         'solver': ['lbfgs'],
-        'C': np.linspace(.05, .5, 100)
+        'alpha': [1e-5],
+        'learning_rate': ['constant'],
+        'max_iter': [10000],
+        'random_state': [42]
     }
 ]
 
 # STEP 2
 # Initialize the model
-softmax_reg = LogisticRegression()
+net = MLPClassifier()
 
 # STEP 3
 # Initialize the grid search
-grid_search = GridSearchCV(softmax_reg, param_grid, cv=3, scoring="accuracy")
+grid_search = GridSearchCV(net, param_grid, cv=3, scoring="accuracy")
 
 # STEP 4
 # Run grid search
 grid_search.fit(X_train_reshape, y_train_reshape)
 
-print("Best Softmax parameters:", grid_search.best_params_, "\n")
+print("Best Neural Network parameters:", grid_search.best_params_, "\n")
 
 
 ######################################
 ##### (1) CV: Accuracy (Softmax) #####
 ######################################
 
-softmax_reg = grid_search.best_estimator_
+net = grid_search.best_estimator_
 
 scores = cross_val_score(
-    softmax_reg,
+    net,
     X_train_reshape,
     y_train_reshape,
     scoring="accuracy", cv=3)
@@ -78,11 +96,11 @@ scores = cross_val_score(
 ##### (2) Confusion Matrix (Softmax) #####
 ##########################################
 
-softmax_reg = grid_search.best_estimator_
+net = grid_search.best_estimator_
 
 # Returns a numpy array of classifications (i.e. 0,1,2)
 y_train_pred = cross_val_predict(
-    softmax_reg,
+    net,
     X_train_reshape,
     y_train_reshape, cv=3)
 
@@ -116,8 +134,8 @@ _f1_score = f1_score(
 ##################################
 
 
-print("Results for: Softmax Regression")
-print("==============================")
+print("Results for: Neureal Network Regression")
+print("=======================================")
 print("Accuracy:", scores.mean())
 print("Precision:", _precision_score)
 print("Recall:", _recall_score)
@@ -132,4 +150,4 @@ print("\n")
 
 # Save the best classifier
 from sklearn.externals import joblib
-joblib.dump(softmax_reg, 'softmax_iris.pkl')
+joblib.dump(net, 'net_model.pkl')
