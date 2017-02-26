@@ -57,7 +57,7 @@ y_test_reshape  = y_test.as_matrix(columns=None).reshape(-1,)
 # nonlinear when drawn in our 2-dimensional plot.
 from sklearn.preprocessing import PolynomialFeatures
 
-poly_features = PolynomialFeatures(degree=12, include_bias=False)
+poly_features = PolynomialFeatures(degree=3, include_bias=False)
 X_train_poly  = poly_features.fit_transform(X_train_reshape)
 X_test_poly   = poly_features.fit_transform(X_test_reshape)
 
